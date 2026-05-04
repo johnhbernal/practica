@@ -1,0 +1,42 @@
+# ============================================================
+# application.prod.yml
+# Configuración del ambiente de PRODUCCIÓN
+#
+# BUENAS PRÁCTICAS:
+# - Nunca hardcodear credenciales aquí
+# - Usar variables de entorno o vault para secretos
+# - Nivel de log INFO (no DEBUG en producción)
+# ============================================================
+
+server:
+  port: 8080
+
+spring:
+  datasource:
+    # En producción las credenciales vienen de variables de entorno
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/practica_prod}
+    username: ${DB_USER:practica_user}
+    password: ${DB_PASS:}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10          # Pool de conexiones
+      minimum-idle: 5
+      connection-timeout: 30000      # 30 segundos
+      idle-timeout: 600000           # 10 minutos
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate             # Solo valida el esquema, nunca lo modifica
+    show-sql: false                  # No mostrar SQL en producción
+
+logging:
+  level:
+    co.com.practica: INFO
+    org.springframework: WARN
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}            # Obligatoriamente desde variable de entorno
+    expiration-ms: 3600000
+  ambiente: PROD

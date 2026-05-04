@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ============================================================
+  log4j2.xml - CONFIGURACIÓN DE LOGGING
+
+  CONCEPTO DE LOGGING:
+  Los logs son el "sistema nervioso" de un microservicio en producción.
+  Sin logs detallados, es imposible diagnosticar problemas.
+
+  NIVELES DE LOG (de menor a mayor severidad):
+  TRACE → DEBUG → INFO → WARN → ERROR → FATAL
+
+  En DEV usamos DEBUG para ver todo.
+  En PROD usamos INFO para no generar demasiado volumen.
+
+  STRUCTURE:
+  - Properties: Variables reutilizables
+  - Appenders: "Destinos" de los logs (consola, archivo, etc.)
+  - Loggers: Define qué nivel usar para cada paquete
+  - Root: Configuración por defecto para todo
+  ============================================================
+-->
+<Configuration status="INFO" packages="co.com.practica.fact">
+
+    <!-- Variables globales reutilizables en toda la configuración -->
+    <Properties>
+        <!-- Ruta base de logs: viene de variable de entorno o usa /tmp/logs por defecto -->
+        <Property name="logPath">${env:LOG_BASE_LOCATION:-/tmp/logs}</Property>
+        <Property name="applicationName">microservicio-practica</Property>
+        <Property name="rollingFileName">practica</Property>
+        <!--
+        Patrón de formato del log:
+        %d{yyyy-MM-dd HH:mm:ss.sss} = Fecha y hora
+        %-5level = Nivel (INFO, DEBUG, etc.) alineado a 5 chars
+        [%thread] = Nombre del hilo
+        %logger{36} = Nombre de la clase (máx 36 chars)
+        %line = Número de línea
+        %msg = Mensaje del log
+        %n = Salto de línea
+        -->
+        <Property name="logPattern">%d{yyyy-MM-dd HH:mm:ss.sss} | %-5level | [%thread] | %logger{36}.%M | \(%line\) | %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+
+        <!--
+        APPENDER 1: Consola
+        Muestra los logs en la terminal/stdout.
+        Útil en desarrollo y para ver logs en tiempo real en servidores.
+        -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${logPattern}"/>
+        </Console>
+
+        <!--
+        APPENDER 2: Archivo de logs INFO
+        Escribe logs de nivel INFO en archivos que rotan diariamente.
+
+        RollingFile: Rota el archivo cuando se cumple una política (tiempo o tamaño).
+        fileName: Archivo activo actual
+        filePattern: Patrón de nombre para archivos archivados (con fecha)
+        -->
+        <RollingFile name="rollingFileInfo"
+                     fileName="${logPath}/${applicationName}/Info/${rollingFileName}-log-info.log"
+                     filePattern="${logPath}/${applicationName}/Info/${rollingFileName}-log-info-%d{yyyy-MM-dd}.log">
+
+            <!-- Solo logs de nivel INFO (no DEBUG, no ERROR) -->
+            <LevelRangeFilter minLevel="INFO" maxLevel="INFO"/>
+
+            <PatternLayout pattern="${logPattern}"/>
+
+            <Policies>
+                <!-- Rota a medianoche todos los días -->
+                <CronTriggeringPolicy schedule="* * 0 ? * * *"/>
+                <!-- También rota cada día -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+
+            <!-- Máximo 5 archivos históricos, elimina los más viejos de 2 días -->
+            <DefaultRolloverStrategy max="5">
+                <Delete basePath="${logPath}/${applicationName}/Info/" maxDepth="2">
+                    <IfLastModified age="2d">
+                        <IfAny>
+                            <IfAccumulatedFileCount exceeds="5"/>
+                        </IfAny>
+                    </IfLastModified>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <!-- APPENDER 3: Archivo de logs DEBUG -->
+        <RollingFile name="rollingFileDebug"
+                     fileName="${logPath}/${applicationName}/Debug/${rollingFileName}-log-debug.log"
+                     filePattern="${logPath}/${applicationName}/Debug/${rollingFileName}-log-debug-%d{yyyy-MM-dd}.log">
+
+            <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG"/>
+            <PatternLayout pattern="${logPattern}"/>
+
+            <Policies>
+                <CronTriggeringPolicy schedule="* * 0 ? * * *"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5">
+                <Delete basePath="${logPath}/${applicationName}/Debug/" maxDepth="2">
+                    <IfLastModified age="2d">
+                        <IfAny><IfAccumulatedFileCount exceeds="5"/></IfAny>
+                    </IfLastModified>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <!-- APPENDER 4: Archivo de logs ERROR -->
+        <RollingFile name="rollingFileError"
+                     fileName="${logPath}/${applicationName}/Error/${rollingFileName}-log-error.log"
+                     filePattern="${logPath}/${applicationName}/Error/${rollingFileName}-log-error-%d{yyyy-MM-dd}.log">
+
+            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR"/>
+            <PatternLayout pattern="${logPattern}"/>
+
+            <Policies>
+                <CronTriggeringPolicy schedule="* * 0 ? * * *"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5">
+                <Delete basePath="${logPath}/${applicationName}/Error/" maxDepth="2">
+                    <IfLastModified age="2d">
+                        <IfAny><IfAccumulatedFileCount exceeds="5"/></IfAny>
+                    </IfLastModified>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+    </Appenders>
+
+    <!--
+    LOGGERS: Define el nivel de log para paquetes específicos.
+    Más específico = mayor prioridad sobre el Root.
+    -->
+    <Loggers>
+
+        <!-- Frameworks de terceros: solo INFO para no saturar los logs -->
+        <Logger name="org.springframework"   level="INFO"/>
+        <Logger name="org.hibernate"         level="INFO"/>
+        <Logger name="org.apache"            level="INFO"/>
+        <Logger name="com.sun"               level="INFO"/>
+
+        <!-- Nuestro código: DEBUG para ver todos los detalles en desarrollo -->
+        <Logger name="co.com.practica"       level="DEBUG"/>
+
+        <!--
+        ROOT Logger: Configuración por defecto para TODO lo demás.
+        additivity="false": No duplicar logs en loggers padre.
+        -->
+        <Root level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="rollingFileInfo"/>
+            <AppenderRef ref="rollingFileDebug"/>
+            <AppenderRef ref="rollingFileError"/>
+        </Root>
+
+    </Loggers>
+
+</Configuration>
