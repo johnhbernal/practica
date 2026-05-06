@@ -46,7 +46,6 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                     .antMatchers(
-                        "/auth/**",
                         "/h2-console/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",

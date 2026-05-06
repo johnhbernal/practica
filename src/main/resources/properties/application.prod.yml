@@ -39,7 +39,4 @@ app:
   jwt:
     secret: ${JWT_SECRET}            # Obligatoriamente desde variable de entorno
     expiration-ms: 3600000
-  auth:
-    username: ${AUTH_USERNAME}
-    password: ${AUTH_PASSWORD}
   ambiente: PROD
