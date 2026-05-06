@@ -5,14 +5,12 @@ import co.com.practica.fact.controller.ParametroController;
 import co.com.practica.fact.dto.ParametroDTO;
 import co.com.practica.fact.dto.ResponseDTO;
 import co.com.practica.fact.service.ParametroService;
-import co.com.practica.fact.util.JwtValidationUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -20,17 +18,15 @@ import java.util.List;
  * ParametroControllerImpl.java - IMPLEMENTACIÓN DEL CONTROLLER
  *
  * RESPONSABILIDADES DE ESTA CLASE:
- * 1. Validar el token JWT antes de procesar cualquier petición
- * 2. Delegar la lógica al Service
- * 3. Construir la respuesta estándar (ResponseDTO)
- * 4. Manejar errores y retornar el código HTTP correcto
+ * 1. Delegar la lógica al Service (JWT validado por JwtAuthFilter antes de llegar aquí)
+ * 2. Construir la respuesta estándar (ResponseDTO)
+ * 3. Manejar errores y retornar el código HTTP correcto
  *
  * PATRÓN: Esta clase NUNCA accede directamente al Repository.
  * La cadena es siempre: Controller → Service → Repository → BD
  *
  * CÓDIGOS HTTP USADOS:
  * - 200 OK: Operación exitosa
- * - 401 UNAUTHORIZED: Token inválido o ausente
  * - 404 NOT_FOUND: Recurso no encontrado
  * - 500 INTERNAL_SERVER_ERROR: Error inesperado del servidor
  * ============================================================
@@ -42,50 +38,20 @@ public class ParametroControllerImpl implements ParametroController {
     @Autowired
     private ParametroService parametroService;
 
-    @Autowired
-    private JwtValidationUtil jwtValidationUtil;
-
-    /**
-     * MÉTODO PRIVADO: validateToken()
-     *
-     * PATRÓN: Método de validación de seguridad que se reutiliza
-     * en TODOS los endpoints. Si el token no es válido, retorna
-     * 401 UNAUTHORIZED inmediatamente, sin procesar la petición.
-     *
-     * @param request Petición HTTP con el header Authorization
-     * @return ResponseEntity con error 401, o null si el token es válido
-     */
-    private ResponseEntity<ResponseDTO> validateToken(HttpServletRequest request) {
-        if (!jwtValidationUtil.isValidToken(request)) {
-            log.warn("Token inválido o ausente en la petición");
-            ResponseDTO response = new ResponseDTO(
-                    String.valueOf(HttpStatus.UNAUTHORIZED.value()),
-                    Constantes.MSG_UNAUTHORIZED);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
-        return null; // null = token válido, continúar procesando
-    }
-
     @Override
-    public ResponseEntity<ResponseDTO> obtenerParametrosActivos(HttpServletRequest request) {
+    public ResponseEntity<ResponseDTO> obtenerParametrosActivos() {
         log.info("GET /parametros/activos - Iniciando consulta");
 
-        // 1. Validar token
-        ResponseEntity<ResponseDTO> tokenValidation = validateToken(request);
-        if (tokenValidation != null) return tokenValidation;
-
         try {
-            // 2. Delegar al servicio
+            // Delegar al servicio
             List<ParametroDTO> parametros = parametroService.obtenerParametrosActivos();
 
             // 3. Construir respuesta exitosa
-            ResponseDTO response = new ResponseDTO(
+            log.info("GET /parametros/activos - Retornando {} parámetros", parametros.size());
+            return ResponseEntity.ok(new ResponseDTO(
                     String.valueOf(HttpStatus.OK.value()),
                     HttpStatus.OK.name(),
-                    parametros);
-
-            log.info("GET /parametros/activos - Retornando {} parámetros", parametros.size());
-            return ResponseEntity.ok(response);
+                    parametros));
 
         } catch (Exception e) {
             // 4. Error inesperado
@@ -98,11 +64,8 @@ public class ParametroControllerImpl implements ParametroController {
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> obtenerTodos(HttpServletRequest request) {
+    public ResponseEntity<ResponseDTO> obtenerTodos() {
         log.info("GET /parametros - Consultando todos los parámetros");
-
-        ResponseEntity<ResponseDTO> tokenValidation = validateToken(request);
-        if (tokenValidation != null) return tokenValidation;
 
         try {
             List<ParametroDTO> parametros = parametroService.obtenerTodosLosParametros();
@@ -120,11 +83,8 @@ public class ParametroControllerImpl implements ParametroController {
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> obtenerPorId(HttpServletRequest request, Long id) {
+    public ResponseEntity<ResponseDTO> obtenerPorId(Long id) {
         log.info("GET /parametros/{} - Buscando parámetro", id);
-
-        ResponseEntity<ResponseDTO> tokenValidation = validateToken(request);
-        if (tokenValidation != null) return tokenValidation;
 
         try {
             ParametroDTO parametro = parametroService.obtenerParametroPorId(id);
@@ -149,11 +109,8 @@ public class ParametroControllerImpl implements ParametroController {
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> buscarPorNombre(HttpServletRequest request, String nombre) {
+    public ResponseEntity<ResponseDTO> buscarPorNombre(String nombre) {
         log.info("GET /parametros/buscar?nombre={}", nombre);
-
-        ResponseEntity<ResponseDTO> tokenValidation = validateToken(request);
-        if (tokenValidation != null) return tokenValidation;
 
         try {
             List<ParametroDTO> resultado = parametroService.buscarPorNombre(nombre);
@@ -171,12 +128,8 @@ public class ParametroControllerImpl implements ParametroController {
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> crearParametro(HttpServletRequest request,
-                                                        ParametroDTO parametroDTO) {
+    public ResponseEntity<ResponseDTO> crearParametro(ParametroDTO parametroDTO) {
         log.info("POST /parametros - Creando parámetro: {}", parametroDTO.getParameterName());
-
-        ResponseEntity<ResponseDTO> tokenValidation = validateToken(request);
-        if (tokenValidation != null) return tokenValidation;
 
         try {
             ParametroDTO creado = parametroService.crearParametro(parametroDTO);
@@ -194,13 +147,8 @@ public class ParametroControllerImpl implements ParametroController {
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> actualizarParametro(HttpServletRequest request,
-                                                             Long id,
-                                                             ParametroDTO parametroDTO) {
+    public ResponseEntity<ResponseDTO> actualizarParametro(Long id, ParametroDTO parametroDTO) {
         log.info("PUT /parametros/{} - Actualizando", id);
-
-        ResponseEntity<ResponseDTO> tokenValidation = validateToken(request);
-        if (tokenValidation != null) return tokenValidation;
 
         try {
             ParametroDTO actualizado = parametroService.actualizarParametro(id, parametroDTO);
@@ -223,11 +171,8 @@ public class ParametroControllerImpl implements ParametroController {
     }
 
     @Override
-    public ResponseEntity<ResponseDTO> desactivarParametro(HttpServletRequest request, Long id) {
+    public ResponseEntity<ResponseDTO> desactivarParametro(Long id) {
         log.info("DELETE /parametros/{} - Desactivando (borrado lógico)", id);
-
-        ResponseEntity<ResponseDTO> tokenValidation = validateToken(request);
-        if (tokenValidation != null) return tokenValidation;
 
         try {
             parametroService.desactivarParametro(id);

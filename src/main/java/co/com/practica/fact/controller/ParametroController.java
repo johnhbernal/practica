@@ -9,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 /**
@@ -55,13 +54,12 @@ public interface ParametroController {
      * Retorna todos los parámetros con estado "A" (activos).
      *
      * @Operation: Documenta el endpoint en Swagger
-     * @param request HttpServletRequest: Contiene headers (incluido el JWT)
      * @return ResponseEntity con lista de parámetros activos
      */
     @Operation(summary = "Obtener parámetros activos",
                description = "Retorna todos los parámetros con estado Activo")
     @GetMapping(value = "/parametros/activos", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<ResponseDTO> obtenerParametrosActivos(HttpServletRequest request);
+    ResponseEntity<ResponseDTO> obtenerParametrosActivos();
 
     /**
      * Endpoint: GET /parametros
@@ -69,7 +67,7 @@ public interface ParametroController {
      */
     @Operation(summary = "Obtener todos los parámetros")
     @GetMapping(value = "/parametros", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<ResponseDTO> obtenerTodos(HttpServletRequest request);
+    ResponseEntity<ResponseDTO> obtenerTodos();
 
     /**
      * Endpoint: GET /parametros/{id}
@@ -79,8 +77,7 @@ public interface ParametroController {
      */
     @Operation(summary = "Buscar parámetro por ID")
     @GetMapping(value = "/parametros/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<ResponseDTO> obtenerPorId(HttpServletRequest request,
-                                              @PathVariable Long id);
+    ResponseEntity<ResponseDTO> obtenerPorId(@PathVariable Long id);
 
     /**
      * Endpoint: GET /parametros/buscar?nombre=texto
@@ -91,8 +88,7 @@ public interface ParametroController {
      */
     @Operation(summary = "Buscar parámetros por nombre")
     @GetMapping(value = "/parametros/buscar", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<ResponseDTO> buscarPorNombre(HttpServletRequest request,
-                                                 @RequestParam String nombre);
+    ResponseEntity<ResponseDTO> buscarPorNombre(@RequestParam String nombre);
 
     /**
      * Endpoint: POST /parametros
@@ -111,8 +107,7 @@ public interface ParametroController {
     @PostMapping(value = "/parametros",
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<ResponseDTO> crearParametro(HttpServletRequest request,
-                                                @Valid @RequestBody ParametroDTO parametroDTO);
+    ResponseEntity<ResponseDTO> crearParametro(@Valid @RequestBody ParametroDTO parametroDTO);
 
     /**
      * Endpoint: PUT /parametros/{id}
@@ -122,8 +117,7 @@ public interface ParametroController {
     @PutMapping(value = "/parametros/{id}",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<ResponseDTO> actualizarParametro(HttpServletRequest request,
-                                                     @PathVariable Long id,
+    ResponseEntity<ResponseDTO> actualizarParametro(@PathVariable Long id,
                                                      @Valid @RequestBody ParametroDTO parametroDTO);
 
     /**
@@ -132,6 +126,5 @@ public interface ParametroController {
      */
     @Operation(summary = "Desactivar parámetro (borrado lógico)")
     @DeleteMapping(value = "/parametros/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<ResponseDTO> desactivarParametro(HttpServletRequest request,
-                                                      @PathVariable Long id);
+    ResponseEntity<ResponseDTO> desactivarParametro(@PathVariable Long id);
 }
