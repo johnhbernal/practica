@@ -1,15 +1,16 @@
-# Compilados y build
+# Maven build
 target/
 *.class
 *.jar
 *.war
 
 # Eclipse / Spring Tool Suite
-.metadata/
 .settings/
 .classpath
 .project
+.metadata/
 *.launch
+bin/
 
 # IntelliJ
 .idea/
@@ -27,3 +28,10 @@ logs/
 # OS
 Thumbs.db
 .DS_Store
+
+# Python cache (code-conductor skills)
+.claude/skills/ui-ux-pro-max/scripts/__pycache__/
+*.pyc
+
+# code-conductor personal memory
+.claude/memory/personal.md
