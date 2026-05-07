@@ -48,6 +48,6 @@ logging:
 # Variables propias del microservicio (accedidas con @Value o @ConfigurationProperties)
 app:
   jwt:
-    secret: "clave-secreta-desarrollo-super-larga-minimo-256-bits-para-hs256"
+    secret: "session-secret-key-change-in-prod!"
     expiration-ms: 3600000  # 1 hora en milisegundos
   ambiente: DEV
