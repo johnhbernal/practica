@@ -90,9 +90,9 @@ public class DataInitializer implements CommandLineRunner {
             log.info("  ✓ {} parámetros de prueba cargados exitosamente",
                     parametrosIniciales.size());
             log.info("═══════════════════════════════════════════════");
-            log.info("  Consola H2: http://localhost:8080/api/h2-console");
-            log.info("  Swagger UI: http://localhost:8080/api/swagger-ui.html");
-            log.info("  API Base:   http://localhost:8080/api/parametros");
+            log.info("  Consola H2: http://localhost:8082/api/h2-console");
+            log.info("  Swagger UI: http://localhost:8082/api/swagger-ui.html");
+            log.info("  API Base:   http://localhost:8082/api/parametros");
             log.info("═══════════════════════════════════════════════");
         } else {
             log.info("  Ya existen {} parámetros en BD. Omitiendo carga inicial.",

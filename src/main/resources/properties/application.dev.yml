@@ -7,7 +7,7 @@
 # ============================================================
 
 server:
-  port: 8080
+  port: 8082
 
 spring:
   # ── BASE DE DATOS ──────────────────────────────────────────
@@ -31,7 +31,7 @@ spring:
         format_sql: true     # Formatea el SQL para mejor legibilidad
 
   # ── H2 CONSOLA WEB ────────────────────────────────────────
-  # Accesible en: http://localhost:8080/api/h2-console
+  # Accesible en: http://localhost:8082/api/h2-console
   h2:
     console:
       enabled: true
