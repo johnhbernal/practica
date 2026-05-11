@@ -78,8 +78,13 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private String getClientIp(HttpServletRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.trim().isEmpty()) {
-            return forwarded.split(",")[0].trim();
+            String candidate = forwarded.split(",")[0].trim();
+            if (isValidIp(candidate)) return candidate;
         }
         return request.getRemoteAddr();
+    }
+
+    private boolean isValidIp(String ip) {
+        return ip != null && ip.matches("^(\\d{1,3}\\.){3}\\d{1,3}$|^[0-9a-fA-F:]+$");
     }
 }

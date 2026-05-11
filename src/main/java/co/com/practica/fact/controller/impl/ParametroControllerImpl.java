@@ -111,11 +111,19 @@ public class ParametroControllerImpl implements ParametroController {
 
     @Override
     public ResponseEntity<ResponseDTO> buscarPorNombre(String nombre) {
-        log.info("GET /parametros/buscar?nombre={}", nombre);
+        log.info("GET /parametros/buscar");
 
-        if (nombre != null && nombre.length() > 50) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDTO("400", "El término de búsqueda es obligatorio"));
+        }
+        if (nombre.length() > 50) {
             return ResponseEntity.badRequest()
                     .body(new ResponseDTO("400", "El término de búsqueda no puede superar 50 caracteres"));
+        }
+        if (!nombre.matches("^[a-zA-Z0-9_\\-\\s]+$")) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDTO("400", "El término de búsqueda contiene caracteres no permitidos"));
         }
 
         try {
@@ -125,7 +133,7 @@ public class ParametroControllerImpl implements ParametroController {
                     HttpStatus.OK.name(),
                     resultado));
         } catch (Exception e) {
-            log.error("Error buscando por nombre '{}': {}", nombre, e.getMessage(), e);
+            log.error("Error en búsqueda por nombre: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDTO(
                             String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),

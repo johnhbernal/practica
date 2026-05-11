@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -65,7 +66,8 @@ public interface ParametroController {
      * Endpoint: GET /parametros
      * Retorna todos los parámetros (activos e inactivos).
      */
-    @Operation(summary = "Obtener todos los parámetros")
+    @Operation(summary = "Obtener todos los parámetros (activos e inactivos)")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/parametros", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<ResponseDTO> obtenerTodos();
 
