@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,9 +56,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(allowedOrigins));
+        config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split(",\\s*")));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        config.setAllowCredentials(false);
+        config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
@@ -68,7 +71,14 @@ public class SecurityConfig {
         return http
                 .cors().and()
                 .csrf().disable()
-                .headers().frameOptions().deny()
+                .headers()
+                    .frameOptions().deny()
+                    .contentTypeOptions().and()
+                    .xssProtection().and()
+                    .httpStrictTransportSecurity()
+                        .includeSubDomains(true)
+                        .maxAgeInSeconds(31536000)
+                    .and()
                 .and()
                 .authorizeRequests()
                     .antMatchers(

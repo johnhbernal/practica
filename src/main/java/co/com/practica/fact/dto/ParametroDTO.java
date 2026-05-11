@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
@@ -66,12 +67,15 @@ public class ParametroDTO {
     private String parameterName;
 
     /** Categoría de agrupación del parámetro */
+    @Size(max = 50, message = "La categoría no puede superar 50 caracteres")
     private String parameterCategory;
 
     /** Valor del parámetro */
+    @Size(max = 500, message = "El valor no puede superar 500 caracteres")
     private String value;
 
     /** Descripción del parámetro */
+    @Size(max = 200, message = "La descripción no puede superar 200 caracteres")
     private String description;
 
     /**
@@ -79,6 +83,7 @@ public class ParametroDTO {
      * En la respuesta al cliente usamos "A"/"I" en lugar de true/false
      * para ser coherentes con los valores de la BD.
      */
+    @Pattern(regexp = "^[AI]$", message = "El estado debe ser 'A' (Activo) o 'I' (Inactivo)")
     private String status;
 
     /** Auditoría: quién lo creó */

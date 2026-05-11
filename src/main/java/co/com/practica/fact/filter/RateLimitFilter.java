@@ -29,7 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RateLimitFilter extends OncePerRequestFilter {
 
-    private static final int      CAPACITY        = 30;
+    private static final int      WRITE_CAPACITY  = 30;
+    private static final int      READ_CAPACITY   = 100;
     private static final Duration REFILL_DURATION = Duration.ofMinutes(1);
 
     private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
@@ -39,25 +40,38 @@ public class RateLimitFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String method = request.getMethod();
-        if ("POST".equalsIgnoreCase(method)
+        String ip     = getClientIp(request);
+
+        int capacity;
+        String bucketKey;
+        if ("GET".equalsIgnoreCase(method) || "HEAD".equalsIgnoreCase(method)) {
+            capacity  = READ_CAPACITY;
+            bucketKey = ip + "|R";
+        } else if ("POST".equalsIgnoreCase(method)
                 || "PUT".equalsIgnoreCase(method)
                 || "DELETE".equalsIgnoreCase(method)) {
-            String ip = getClientIp(request);
-            Bucket bucket = buckets.computeIfAbsent(ip, k ->
-                Bucket.builder()
-                    .addLimit(Bandwidth.classic(CAPACITY,
-                        Refill.intervally(CAPACITY, REFILL_DURATION)))
-                    .build());
-
-            if (!bucket.tryConsume(1)) {
-                log.warn("Rate limit exceeded for IP: {}", ip);
-                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.getWriter().write(
-                    "{\"code\":\"429\",\"description\":\"" + Constantes.MSG_FAIL + "\"}");
-                return;
-            }
+            capacity  = WRITE_CAPACITY;
+            bucketKey = ip + "|W";
+        } else {
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        Bucket bucket = buckets.computeIfAbsent(bucketKey, k ->
+            Bucket.builder()
+                .addLimit(Bandwidth.classic(capacity,
+                    Refill.intervally(capacity, REFILL_DURATION)))
+                .build());
+
+        if (!bucket.tryConsume(1)) {
+            log.warn("Rate limit exceeded for IP: {}", ip);
+            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.getWriter().write(
+                "{\"code\":\"429\",\"description\":\"" + Constantes.MSG_FAIL + "\"}");
+            return;
+        }
+
         filterChain.doFilter(request, response);
     }
 

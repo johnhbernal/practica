@@ -9,6 +9,8 @@ import co.com.practica.fact.repository.ParametroRepository;
 import co.com.practica.fact.service.ParametroService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,10 +112,10 @@ public class ParametroServiceImpl implements ParametroService {
     @Override
     @Transactional(readOnly = true)
     public List<ParametroDTO> buscarPorNombre(String nombre) {
-        log.info("Buscando parámetros con nombre que contiene: '{}'", nombre);
+        log.info("Búsqueda de parámetros por nombre");
         List<Parametro> resultado = parametroRepository
                 .findByNombreParametroContainingIgnoreCase(nombre);
-        log.info("Encontrados {} parámetros para la búsqueda '{}'", resultado.size(), nombre);
+        log.info("Búsqueda completada: {} resultado(s)", resultado.size());
         return parametroMapper.toDTOList(resultado);
     }
 
@@ -150,10 +152,9 @@ public class ParametroServiceImpl implements ParametroService {
         parametro.setFechaModificacion(ahora);
         parametro.setEstado(Constantes.ESTADO_ACTIVO);
 
-        // Aquí normalmente tomamos el usuario del SecurityContext (JWT)
-        // Por simplicidad usamos un valor fijo
-        parametro.setUsuarioCreacion("SISTEMA");
-        parametro.setUsuarioModificacion("SISTEMA");
+        String currentUser = currentUsername();
+        parametro.setUsuarioCreacion(currentUser);
+        parametro.setUsuarioModificacion(currentUser);
 
         // 3. Guardar en BD. save() hace INSERT si el ID es null, UPDATE si tiene ID
         Parametro guardado = parametroRepository.save(parametro);
@@ -180,7 +181,7 @@ public class ParametroServiceImpl implements ParametroService {
         existente.setValor(parametroDTO.getValue());
         existente.setDescripcion(parametroDTO.getDescription());
         existente.setFechaModificacion(new Date());
-        existente.setUsuarioModificacion("SISTEMA");
+        existente.setUsuarioModificacion(currentUsername());
 
         Parametro actualizado = parametroRepository.save(existente);
         log.info("Parámetro {} actualizado exitosamente", id);
@@ -204,5 +205,10 @@ public class ParametroServiceImpl implements ParametroService {
         parametroRepository.save(parametro);
 
         log.info("Parámetro {} desactivado exitosamente", id);
+    }
+
+    private String currentUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (auth != null && auth.isAuthenticated()) ? auth.getName() : "SISTEMA";
     }
 }
