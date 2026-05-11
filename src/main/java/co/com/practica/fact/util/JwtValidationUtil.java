@@ -88,7 +88,7 @@ public class JwtValidationUtil {
 
             // 2. Verificar que exista y tenga el formato correcto
             if (authHeader == null || !authHeader.startsWith(Constantes.BEARER_PREFIX)) {
-                log.warn("Header Authorization ausente o con formato incorrecto");
+                log.debug("Authorization header absent or malformed");
                 return false;
             }
 
@@ -106,13 +106,13 @@ public class JwtValidationUtil {
             return true;
 
         } catch (ExpiredJwtException e) {
-            log.warn("Token JWT expirado: {}", e.getMessage());
+            log.debug("Token JWT expirado");
         } catch (MalformedJwtException e) {
-            log.warn("Token JWT malformado: {}", e.getMessage());
+            log.debug("Token JWT malformado");
         } catch (SignatureException e) {
-            log.warn("Firma del token JWT inválida");
+            log.debug("Firma del token JWT inválida");
         } catch (Exception e) {
-            log.warn("Error validando token JWT: {}", e.getMessage());
+            log.debug("Error validando token JWT");
         }
         return false;
     }

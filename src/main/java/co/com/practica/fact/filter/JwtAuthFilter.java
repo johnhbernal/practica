@@ -53,7 +53,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(subject, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        log.debug("JWT válido para subject: {}", subject);
+        log.debug("JWT válido — autenticación establecida");
 
         filterChain.doFilter(request, response);
     }
