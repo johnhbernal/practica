@@ -63,9 +63,14 @@ public class JwtValidationUtil {
      */
     @PostConstruct
     public void init() {
-        // Creamos la clave HMAC-SHA256 a partir del secret en texto
-        // La clave debe tener al menos 256 bits (32 bytes) para HS256
-        this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        if (jwtSecret == null || jwtSecret.trim().isEmpty()) {
+            throw new IllegalStateException("app.jwt.secret must not be null or empty");
+        }
+        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            throw new IllegalStateException("app.jwt.secret must be at least 32 bytes for HS256");
+        }
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
         log.info("JwtValidationUtil inicializado correctamente");
     }
 

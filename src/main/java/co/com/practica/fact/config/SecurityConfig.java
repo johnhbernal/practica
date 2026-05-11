@@ -88,6 +88,7 @@ public class SecurityConfig {
                         "/error"
                     ).permitAll()
                     .antMatchers("/parametros/**").authenticated()
+                    .anyRequest().denyAll()
                 .and()
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

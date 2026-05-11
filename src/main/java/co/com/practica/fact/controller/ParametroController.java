@@ -106,6 +106,7 @@ public interface ParametroController {
      * Aquí retornamos 200 por consistencia con el patrón del proyecto base.
      */
     @Operation(summary = "Crear nuevo parámetro")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping(value = "/parametros",
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = MediaType.APPLICATION_JSON_VALUE)
@@ -116,6 +117,7 @@ public interface ParametroController {
      * Actualiza un parámetro existente.
      */
     @Operation(summary = "Actualizar parámetro existente")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping(value = "/parametros/{id}",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
@@ -127,6 +129,7 @@ public interface ParametroController {
      * Desactiva un parámetro (borrado lógico).
      */
     @Operation(summary = "Desactivar parámetro (borrado lógico)")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping(value = "/parametros/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<ResponseDTO> desactivarParametro(@PathVariable Long id);
 }
