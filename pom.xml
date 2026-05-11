@@ -233,6 +233,13 @@
             <version>32.1.2-jre</version>
         </dependency>
 
+        <!-- Rate limiting -->
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>7.6.0</version>
+        </dependency>
+
         <!--
         ── VALIDACIÓN ───────────────────────────────────────────────────
         hibernate-validator: Implementación de Bean Validation (JSR-380).

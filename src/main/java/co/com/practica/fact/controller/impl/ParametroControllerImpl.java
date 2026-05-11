@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -58,7 +59,7 @@ public class ParametroControllerImpl implements ParametroController {
             log.error("Error en GET /parametros/activos: {}", e.getMessage(), e);
             ResponseDTO errorResponse = new ResponseDTO(
                     String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                    "Error al consultar parámetros: " + e.getMessage());
+                    Constantes.MSG_FAIL);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
@@ -78,7 +79,7 @@ public class ParametroControllerImpl implements ParametroController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDTO(
                             String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                            e.getMessage()));
+                            Constantes.MSG_FAIL));
         }
     }
 
@@ -104,13 +105,18 @@ public class ParametroControllerImpl implements ParametroController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDTO(
                             String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                            e.getMessage()));
+                            Constantes.MSG_FAIL));
         }
     }
 
     @Override
     public ResponseEntity<ResponseDTO> buscarPorNombre(String nombre) {
         log.info("GET /parametros/buscar?nombre={}", nombre);
+
+        if (nombre != null && nombre.length() > 50) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDTO("400", "El término de búsqueda no puede superar 50 caracteres"));
+        }
 
         try {
             List<ParametroDTO> resultado = parametroService.buscarPorNombre(nombre);
@@ -123,11 +129,12 @@ public class ParametroControllerImpl implements ParametroController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDTO(
                             String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                            e.getMessage()));
+                            Constantes.MSG_FAIL));
         }
     }
 
     @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> crearParametro(ParametroDTO parametroDTO) {
         log.info("POST /parametros - Creando parámetro: {}", parametroDTO.getParameterName());
 
@@ -142,11 +149,12 @@ public class ParametroControllerImpl implements ParametroController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDTO(
                             String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                            e.getMessage()));
+                            Constantes.MSG_FAIL));
         }
     }
 
     @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> actualizarParametro(Long id, ParametroDTO parametroDTO) {
         log.info("PUT /parametros/{} - Actualizando", id);
 
@@ -166,11 +174,12 @@ public class ParametroControllerImpl implements ParametroController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDTO(
                             String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                            e.getMessage()));
+                            Constantes.MSG_FAIL));
         }
     }
 
     @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> desactivarParametro(Long id) {
         log.info("DELETE /parametros/{} - Desactivando (borrado lógico)", id);
 
@@ -189,7 +198,7 @@ public class ParametroControllerImpl implements ParametroController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDTO(
                             String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                            e.getMessage()));
+                            Constantes.MSG_FAIL));
         }
     }
 }

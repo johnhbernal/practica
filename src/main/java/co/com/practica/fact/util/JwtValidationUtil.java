@@ -48,7 +48,7 @@ public class JwtValidationUtil {
      * del application.yml activo.
      * El valor por defecto (después del :) se usa si la propiedad no existe.
      */
-    @Value("${app.jwt.secret:clave-secreta-desarrollo-super-larga-minimo-256-bits-para-hs256}")
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
 
     @Value("${app.jwt.expiration-ms:3600000}")
@@ -149,5 +149,18 @@ public class JwtValidationUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String extractRole(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("role", String.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
