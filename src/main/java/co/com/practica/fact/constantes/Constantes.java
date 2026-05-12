@@ -64,6 +64,10 @@ public class Constantes {
     /** Categoría para parámetros de negocio */
     public static final String CATEGORIA_NEGOCIO = "NEGOCIO";
 
+    // ── VALIDACIÓN ────────────────────────────────────────────────
+    /** Patrón permitido para nombres de parámetros y búsquedas */
+    public static final String NOMBRE_PARAMETRO_PATTERN = "^[a-zA-Z0-9_\\-\\s]+$";
+
     // Constructor privado: Esta clase NO debe instanciarse
     // Solo contiene constantes estáticas
     private Constantes() {

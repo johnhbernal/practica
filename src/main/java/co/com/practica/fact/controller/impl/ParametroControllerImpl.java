@@ -121,7 +121,7 @@ public class ParametroControllerImpl implements ParametroController {
             return ResponseEntity.badRequest()
                     .body(new ResponseDTO("400", "El término de búsqueda no puede superar 50 caracteres"));
         }
-        if (!nombre.matches("^[a-zA-Z0-9_\\-\\s]+$")) {
+        if (!nombre.matches(co.com.practica.fact.constantes.Constantes.NOMBRE_PARAMETRO_PATTERN)) {
             return ResponseEntity.badRequest()
                     .body(new ResponseDTO("400", "El término de búsqueda contiene caracteres no permitidos"));
         }
@@ -148,8 +148,8 @@ public class ParametroControllerImpl implements ParametroController {
 
         try {
             ParametroDTO creado = parametroService.crearParametro(parametroDTO);
-            return ResponseEntity.ok(new ResponseDTO(
-                    String.valueOf(HttpStatus.OK.value()),
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDTO(
+                    String.valueOf(HttpStatus.CREATED.value()),
                     "Parámetro creado exitosamente",
                     creado));
         } catch (Exception e) {
