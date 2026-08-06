@@ -161,11 +161,13 @@ mvn clean package -P prod
 ```
 
 ### URLs disponibles al iniciar:
-- **API Base:** `http://localhost:8080/api`
-- **Swagger UI:** `http://localhost:8080/api/swagger-ui.html`
-- **H2 Console:** `http://localhost:8080/api/h2-console`
+- **API Base:** `http://localhost:8082/api`
+- **Swagger UI:** `http://localhost:8082/api/swagger-ui.html`
+- **H2 Console:** `http://localhost:8082/api/h2-console`
   - JDBC URL: `jdbc:h2:mem:practica_dev`
   - User: `sa` | Password: (vacío)
+
+JWT: set `APP_JWT_SECRET_SESSION` to the same value as ms-auth (see `.env.example`).
 
 ---
 
@@ -175,7 +177,7 @@ Ejemplo: `GET /api/parametros/activos`
 
 ```
 1. Cliente envía:
-   GET http://localhost:8080/api/parametros/activos
+   GET http://localhost:8082/api/parametros/activos
    Header: Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 2. Spring Security intercepta:
@@ -242,7 +244,7 @@ Como atajo para desarrollo, el token de prueba generado con la clave del `applic
 
 **Variables de colección:**
 ```
-base_url = http://localhost:8080/api
+base_url = http://localhost:8082/api
 token = <tu token JWT>
 ```
 

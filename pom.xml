@@ -319,84 +319,27 @@
 
     <!--
     ╔══════════════════════════════════════════════════════════════════╗
-    ║  PERFILES                                                        ║
-    ║  Permiten tener configuraciones distintas por ambiente.          ║
-    ║  Se activan con: mvn package -P prod                             ║
+    ║  PERFILES Maven (opcionales)                                     ║
+    ║  Spring config vive en application*.properties (no YAML copy).   ║
+    ║  Runtime: spring.profiles.active=dev|prod                        ║
+    ║  Compiler + Lombok/MapStruct processors: defined in <build> only. ║
     ╚══════════════════════════════════════════════════════════════════╝
     -->
     <profiles>
-        <!-- DESARROLLO: activo por defecto, usa application.dev.yml -->
         <profile>
             <id>dev</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <build>
-                <finalName>${project.artifactId}-${project.version}</finalName>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>${maven-compiler-plugin.version}</version>
-                        <configuration>
-                            <source>${java.version}</source>
-                            <target>${java.version}</target>
-                        </configuration>
-                    </plugin>
-                    <!-- Copia application.dev.yml como application.yml al compilar -->
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>compile</phase>
-                                <goals><goal>run</goal></goals>
-                                <configuration>
-                                    <target>
-                                        <delete file="${project.build.outputDirectory}/application.yml"/>
-                                        <copy file="src/main/resources/properties/application.dev.yml"
-                                              tofile="${project.build.outputDirectory}/application.yml"/>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
         </profile>
-
-        <!-- PRODUCCIÓN: usa application.prod.yml -->
         <profile>
             <id>prod</id>
-            <build>
-                <finalName>${project.artifactId}-${project.version}</finalName>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>${maven-compiler-plugin.version}</version>
-                        <configuration>
-                            <source>${java.version}</source>
-                            <target>${java.version}</target>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>compile</phase>
-                                <goals><goal>run</goal></goals>
-                                <configuration>
-                                    <target>
-                                        <delete file="${project.build.outputDirectory}/application.yml"/>
-                                        <copy file="src/main/resources/properties/application.prod.yml"
-                                              tofile="${project.build.outputDirectory}/application.yml"/>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+            </properties>
         </profile>
     </profiles>
 

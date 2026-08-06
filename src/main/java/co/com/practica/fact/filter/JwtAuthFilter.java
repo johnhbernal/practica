@@ -46,15 +46,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String rawToken = authHeader.substring(Constantes.BEARER_PREFIX.length());
         String subject = jwtValidationUtil.extraerSubject(rawToken);
         String role = jwtValidationUtil.extractRole(rawToken);
-        List<GrantedAuthority> authorities = role != null
-                ? Collections.singletonList(new SimpleGrantedAuthority(role))
-                : Collections.emptyList();
+        List<GrantedAuthority> authorities = toAuthorities(role);
 
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(subject, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        log.debug("JWT válido — autenticación establecida");
+        log.debug("JWT válido — autenticación establecida con authorities={}", authorities);
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Maps JWT role claim to Spring authority with ROLE_ prefix
+     * so {@code hasRole('ADMIN')} matches ms-auth (ADMIN → ROLE_ADMIN).
+     */
+    static List<GrantedAuthority> toAuthorities(String role) {
+        if (role == null || role.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        String authority = role.startsWith(Constantes.ROLE_PREFIX)
+                ? role
+                : Constantes.ROLE_PREFIX + role;
+        return Collections.singletonList(new SimpleGrantedAuthority(authority));
     }
 }

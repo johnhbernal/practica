@@ -1,9 +1,9 @@
 package co.com.practica.fact.config;
 
+import co.com.practica.fact.constantes.Constantes;
 import co.com.practica.fact.filter.JwtAuthFilter;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import co.com.practica.fact.constantes.Constantes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,22 +18,13 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * ============================================================
- * SecurityConfig.java - CONFIGURACIÓN DE SPRING SECURITY
- *
- * FLUJO DE SEGURIDAD:
- * 1. La petición llega al servidor
- * 2. JwtAuthFilter valida el token ANTES de UsernamePasswordAuthenticationFilter
- * 3. Si el token es válido, setea el contexto de autenticación
- * 4. Spring Security verifica si la ruta requiere autenticación
- *
- * RUTAS ABIERTAS: /h2-console, /swagger-ui, /v3/api-docs, /error
- * RUTAS PROTEGIDAS: /parametros/** → requieren JWT válido
- * ============================================================
+ * Security configuration aligned with ms-auth session JWTs.
+ * Use {@code @PreAuthorize("hasRole('ADMIN')")} — authorities are ROLE_*.
  */
 @SecurityScheme(
         type = SecuritySchemeType.HTTP,
@@ -47,6 +38,9 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:http://localhost:3000}")
     private String allowedOrigins;
 
+    @Value("${spring.h2.console.enabled:false}")
+    private boolean h2ConsoleEnabled;
+
     private final JwtAuthFilter jwtAuthFilter;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
@@ -57,8 +51,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split(",\\s*")));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         config.setAllowCredentials(false);
         config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -68,25 +62,35 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        List<String> permitAll = new ArrayList<String>(Arrays.asList(
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**",
+                "/error"
+        ));
+        if (h2ConsoleEnabled) {
+            permitAll.add("/h2-console/**");
+        }
+
+        http.cors().and()
+                .csrf().disable();
+
+        if (h2ConsoleEnabled) {
+            http.headers().frameOptions().sameOrigin();
+        } else {
+            http.headers().frameOptions().deny();
+        }
+
+        http.headers()
+                .contentTypeOptions().and()
+                .xssProtection().and()
+                .httpStrictTransportSecurity()
+                    .includeSubDomains(true)
+                    .maxAgeInSeconds(31536000);
+
         return http
-                .cors().and()
-                .csrf().disable()
-                .headers()
-                    .frameOptions().deny()
-                    .contentTypeOptions().and()
-                    .xssProtection().and()
-                    .httpStrictTransportSecurity()
-                        .includeSubDomains(true)
-                        .maxAgeInSeconds(31536000)
-                    .and()
-                .and()
                 .authorizeRequests()
-                    .antMatchers(
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/v3/api-docs/**",
-                        "/error"
-                    ).permitAll()
+                    .antMatchers(permitAll.toArray(new String[0])).permitAll()
                     .antMatchers("/parametros/**").authenticated()
                     .anyRequest().denyAll()
                 .and()

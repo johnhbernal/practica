@@ -186,15 +186,15 @@ class ParametroControllerImplTest {
     // ═══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("POST /parametros - crea y retorna 200")
-    void crearParametro_retorna200() throws Exception {
+    @DisplayName("POST /parametros - crea y retorna 201")
+    void crearParametro_retorna201() throws Exception {
         when(parametroService.crearParametro(any(ParametroDTO.class))).thenReturn(parametroDTO);
 
         mockMvc.perform(post("/parametros")
                        .contentType(MediaType.APPLICATION_JSON)
                        .content(objectMapper.writeValueAsString(parametroDTO)))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.code").value("200"))
+               .andExpect(status().isCreated())
+               .andExpect(jsonPath("$.code").value("201"))
                .andExpect(jsonPath("$.data.parameterName").value("TIEMPO_SESION"));
     }
 

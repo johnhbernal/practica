@@ -1,5 +1,6 @@
 package co.com.practica.fact.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -70,11 +71,19 @@ public class ParametroDTO {
     @Size(max = 50, message = "La categoría no puede superar 50 caracteres")
     private String parameterCategory;
 
-    /** Valor del parámetro */
+    /**
+     * Valor del parámetro.
+     * {@code parameterValue} alias matches ms-auth {@code ParameterFeignDto}.
+     */
+    @JsonAlias({"parameterValue"})
     @Size(max = 500, message = "El valor no puede superar 500 caracteres")
     private String value;
 
-    /** Descripción del parámetro */
+    /**
+     * Descripción del parámetro.
+     * {@code parameterDescription} alias matches ms-auth {@code ParameterFeignDto}.
+     */
+    @JsonAlias({"parameterDescription"})
     @Size(max = 200, message = "La descripción no puede superar 200 caracteres")
     private String description;
 

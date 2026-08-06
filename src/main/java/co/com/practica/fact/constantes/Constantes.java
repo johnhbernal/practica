@@ -57,6 +57,21 @@ public class Constantes {
     /** Nombre del header de autorización */
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
+    /** Claim JWT de rol (alineado con ms-auth) */
+    public static final String CLAIM_ROLE = "role";
+
+    /** Claim JWT de tipo de token (alineado con ms-auth) */
+    public static final String CLAIM_TOKEN_TYPE = "tokenType";
+
+    /** Valor esperado de tokenType para sesión (ms-auth) */
+    public static final String TOKEN_TYPE_SESSION = "SESSION";
+
+    /** Valor de tokenType para master (ms-auth Feign / service-to-service) */
+    public static final String TOKEN_TYPE_MASTER = "MASTER";
+
+    /** Prefijo Spring Security para roles (hasRole) */
+    public static final String ROLE_PREFIX = "ROLE_";
+
     // ── CATEGORÍAS DE PARÁMETROS ──────────────────────────────────
     /** Categoría para parámetros de configuración del sistema */
     public static final String CATEGORIA_SISTEMA = "SISTEMA";

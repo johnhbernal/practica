@@ -142,7 +142,7 @@ public class ParametroControllerImpl implements ParametroController {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDTO> crearParametro(ParametroDTO parametroDTO) {
         log.info("POST /parametros - Creando parámetro: {}", parametroDTO.getParameterName());
 
@@ -162,7 +162,7 @@ public class ParametroControllerImpl implements ParametroController {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDTO> actualizarParametro(Long id, ParametroDTO parametroDTO) {
         log.info("PUT /parametros/{} - Actualizando", id);
 
@@ -187,7 +187,7 @@ public class ParametroControllerImpl implements ParametroController {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDTO> desactivarParametro(Long id) {
         log.info("DELETE /parametros/{} - Desactivando (borrado lógico)", id);
 

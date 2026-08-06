@@ -40,10 +40,9 @@ $RECYCLE.BIN/
 # code-conductor personal memory
 .claude/memory/personal.md
 
-# AI/agent tooling
+# AI/agent tooling (local)
 .claude/
 .playwright-mcp/
-CLAUDE.md
 .superpowers/
 
 # VS Code
