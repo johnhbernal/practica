@@ -26,16 +26,15 @@ import java.util.List;
  * - Ejecutar migraciones de datos
  * - Validar configuraciones al inicio
  *
- * @Profile("dev"): Solo se activa en el perfil de desarrollo.
- * En QA, UAT y producción, esta clase no carga datos.
- * Así evitamos llenar la BD de producción con datos de prueba.
+ * @Profile({"dev","stack"}): desarrollo local y demos Docker full-stack
+ * ({@code prod,stack}). No se activa en prod puro.
  *
  * Si no existe el @Profile, se ejecutaría en TODOS los ambientes.
  * ============================================================
  */
 @Log4j2
 @Component
-@Profile("dev")  // Solo en desarrollo
+@Profile({"dev", "stack"})
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired

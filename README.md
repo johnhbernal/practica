@@ -57,6 +57,16 @@ docker compose up --build
 
 Services: `postgres` (16-alpine, volume, healthcheck) + `microservicio-practica` (depends on healthy Postgres, profile `prod`).
 
+### Full stack (auth + practica + frontend)
+
+See sibling [`../practica-stack`](../practica-stack) — one Postgres (DBs `msauth` + `practica`), profiles `prod,stack` (seed), nginx UI on :3000.
+
+```powershell
+cd ..\practica-stack
+copy .env.example .env
+powershell -File scripts\smoke-stack-docker.ps1
+```
+
 ## Local CI
 
 ```bash
