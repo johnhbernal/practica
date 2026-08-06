@@ -2,7 +2,7 @@
 
 ## JWT (ms-auth alignment)
 
-- Session secret: `app.jwt.secret=${APP_JWT_SECRET_SESSION:${APP_JWT_SECRET}}`
+- Session secret: `app.jwt.secret=${APP_JWT_SECRET_SESSION}` (no nested fallback — breaks under Docker env)
 - Master secret: `app.jwt.secret-master=${APP_JWT_SECRET_MASTER:}` (optional; required for Feign)
 - Validate HS256: try session key first, then master key.
 - Claim `role` (e.g. `ADMIN`) → authority `ROLE_ADMIN` in `JwtAuthFilter`.
