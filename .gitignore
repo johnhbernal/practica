@@ -82,3 +82,7 @@ src/main/resources/properties/application.dev.yml
 src/main/resources/properties/application.prod.yml
 src/main/resources/properties/application.local.yml
 secrets/
+
+build-local.log
+target/
+
