@@ -255,4 +255,49 @@ class ParametroServiceImplTest {
         // Verificar que NUNCA se guardó nada
         verify(parametroRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("Debe listar todos los parámetros")
+    void debeListarTodosLosParametros() {
+        when(parametroRepository.findAll()).thenReturn(Arrays.asList(parametroActivo));
+        when(parametroMapper.toDTOList(anyList())).thenReturn(Arrays.asList(new ParametroDTO()));
+
+        assertEquals(1, parametroService.obtenerTodosLosParametros().size());
+    }
+
+    @Test
+    @DisplayName("Debe buscar parámetros por nombre")
+    void debeBuscarPorNombre() {
+        when(parametroRepository.findByNombreParametroContainingIgnoreCase("TIEMPO"))
+                .thenReturn(Arrays.asList(parametroActivo));
+        when(parametroMapper.toDTOList(anyList())).thenReturn(Collections.singletonList(new ParametroDTO()));
+
+        assertEquals(1, parametroService.buscarPorNombre("TIEMPO").size());
+    }
+
+    @Test
+    @DisplayName("Debe obtener parámetros por categoría")
+    void debeObtenerPorCategoria() {
+        when(parametroRepository.findByCategoria("SISTEMA")).thenReturn(Arrays.asList(parametroActivo));
+        when(parametroMapper.toDTOList(anyList())).thenReturn(Collections.singletonList(new ParametroDTO()));
+
+        assertEquals(1, parametroService.obtenerPorCategoria("SISTEMA").size());
+    }
+
+    @Test
+    @DisplayName("Debe actualizar un parámetro existente")
+    void debeActualizarParametro() {
+        ParametroDTO dto = new ParametroDTO();
+        dto.setParameterName("ACTUALIZADO");
+        dto.setParameterCategory("SISTEMA");
+        dto.setValue("1");
+        dto.setDescription("desc");
+
+        when(parametroRepository.findById(1L)).thenReturn(Optional.of(parametroActivo));
+        when(parametroRepository.save(any(Parametro.class))).thenReturn(parametroActivo);
+        when(parametroMapper.toDTO(parametroActivo)).thenReturn(dto);
+
+        ParametroDTO result = parametroService.actualizarParametro(1L, dto);
+        assertEquals("ACTUALIZADO", result.getParameterName());
+    }
 }

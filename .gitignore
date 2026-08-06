@@ -5,15 +5,23 @@ target/
 *.war
 
 # Eclipse / Spring Tool Suite
+.metadata/
 .settings/
 .classpath
 .project
-.metadata/
 *.launch
-bin/
 
-# IntelliJ
-.idea/
+# IntelliJ — share SDK language level + dictionary; keep local caches out
+.idea/*
+!.idea/.gitignore
+!.idea/misc.xml
+!.idea/compiler.xml
+!.idea/encodings.xml
+!.idea/vcs.xml
+!.idea/jarRepositories.xml
+!.idea/dictionaries/
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
 *.iml
 
 # Variables de entorno
@@ -33,17 +41,17 @@ ehthumbs_vista.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# Python cache (code-conductor skills)
-.claude/skills/ui-ux-pro-max/scripts/__pycache__/
-*.pyc
-
-# code-conductor personal memory
+# AI/agent tooling
 .claude/memory/personal.md
+.claude/settings.local.json
+.claude/skills/**/__pycache__/
+.claude/proven-config.json
+.claude/.proven-config-version
+.claude-flow/
 
-# AI/agent tooling (local)
-.claude/
-.playwright-mcp/
-.superpowers/
+# Local verify logs
+build-verify.log
+build-local.log
 
 # VS Code
 .vscode/*
@@ -63,6 +71,7 @@ $RECYCLE.BIN/
 build/
 dist/
 out/
+bin/
 
 # JVM crash logs
 hs_err_pid*.log
@@ -73,7 +82,7 @@ replay_pid*.log
 .springBeans
 .sts4-cache/
 
-# Local / dev Spring config overrides (never commit secrets)
+# Local Spring config overrides (never commit secrets)
 application-local.yml
 application.local.yml
 application-dev.yml
@@ -84,7 +93,3 @@ src/main/resources/properties/application.dev.yml
 src/main/resources/properties/application.prod.yml
 src/main/resources/properties/application.local.yml
 secrets/
-
-build-local.log
-target/
-

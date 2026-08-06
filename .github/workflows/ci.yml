@@ -8,8 +8,6 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # Dev profile provides H2 + local JWT secret for tests
-  APP_JWT_SECRET_SESSION: ci-jwt-secret-key-for-practica-tests-min-32chars
 
 jobs:
 
@@ -24,10 +22,9 @@ jobs:
         with:
           java-version: '17'
           distribution: temurin
-          cache: maven
 
       - name: Compile and package
-        run: mvn -B package -DskipTests
+        run: ./mvnw -B package -DskipTests
 
       - name: Upload WAR artifact
         uses: actions/upload-artifact@v4
@@ -48,7 +45,16 @@ jobs:
         with:
           java-version: '17'
           distribution: temurin
-          cache: maven
 
-      - name: Run tests
-        run: mvn -B test
+      - name: Run tests with coverage gate
+        run: ./mvnw -B verify
+
+  docker-build:
+    name: Docker Build
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build .

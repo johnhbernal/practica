@@ -1,3 +1,91 @@
+# microservicio-practica
+
+Production-oriented parameters microservice for the Practica system (JWT validation aligned with ms-auth).
+
+## Stack
+
+| | |
+|---|---|
+| Runtime | Java 17 |
+| Framework | Spring Boot **2.7.18** |
+| Build | Maven Wrapper (`./mvnw`) |
+| Packaging | WAR (executable via Spring Boot loader in Docker) |
+| DB (dev/test) | H2 in-memory (Flyway off, Hibernate DDL) |
+| DB (prod) | PostgreSQL 16 + Flyway (`ddl-auto=validate`) |
+| JWT | JJWT 0.11.5 · session + master secrets (ms-auth issued) |
+| Security | Spring Security · JwtAuthFilter · Bucket4j rate limit |
+| Observability | Actuator (`/api/actuator/health` only) |
+| Coverage | JaCoCo line coverage **≥ 0.70** on `verify` |
+
+## Profiles
+
+| Profile | Datasource | DDL | Flyway | Notes |
+|---------|------------|-----|--------|-------|
+| `dev` | H2 mem | `update` | off | Swagger + H2 console; seed data; JWT secrets in properties |
+| `test` | H2 mem | `create-drop` | off | JWT test secrets; used by tests (`src/test/resources`) |
+| `prod` | Postgres via env | `validate` | **on** | Swagger/H2 off; JWT + DB from env |
+
+Do **not** set `spring.profiles.active=dev` in base `application.properties`. Activate explicitly.
+
+## Quick start (local)
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+# → http://localhost:8082/api
+# → Swagger: http://localhost:8082/api/swagger-ui/index.html
+# → Health: http://localhost:8082/api/actuator/health
+```
+
+## IDE setup (IntelliJ / Cursor)
+
+False positives like `Cannot resolve symbol 'String'`, “method is never used” on Spring mappings, or typo on `practica` mean the **project JDK is missing** — not OWASP gaps.
+
+| IDE | Fix |
+|-----|-----|
+| **IntelliJ** | `powershell -File scripts/setup-intellij-sdk.ps1` → restart IDE → **File → Project Structure → Project → SDK = `temurin-17`**. Or click the yellow **Setup SDK** banner and pick that JDK (`%USERPROFILE%\scoop\apps\temurin17-jdk\current`). |
+| **Cursor / VS Code** | Already tracked: `.vscode/settings.json` points `java.jdt.ls.java.home` at Scoop Temurin 17; dictionary includes `practica`. |
+
+Project language level is committed in `.idea/misc.xml` (`JDK_17` / `temurin-17`).
+
+## Docker Compose (prod-like)
+
+```bash
+cp .env.example .env   # set APP_JWT_* (≥32 chars) and DB password
+docker compose up --build
+# → http://localhost:8082/api/actuator/health
+```
+
+Services: `postgres` (16-alpine, volume, healthcheck) + `microservicio-practica` (depends on healthy Postgres, profile `prod`).
+
+## Local CI
+
+```bash
+./mvnw -B verify          # tests + JaCoCo gate (≥ 70% line)
+# Windows helper:
+powershell -File scripts/ci-local.ps1
+```
+
+## Environment variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `APP_JWT_SECRET_SESSION` | prod | HMAC secret ≥ 32 bytes (must match ms-auth) |
+| `APP_JWT_SECRET_MASTER` | prod | HMAC secret ≥ 32 bytes (Feign from ms-auth) |
+| `SPRING_DATASOURCE_URL` | prod | e.g. `jdbc:postgresql://host:5432/practica` |
+| `SPRING_DATASOURCE_USERNAME` | prod | DB user |
+| `SPRING_DATASOURCE_PASSWORD` | prod | DB password |
+| `APP_CORS_ALLOWED_ORIGINS` | optional | Comma-separated origins (default `http://localhost:3000`) |
+| `SPRING_PROFILES_ACTIVE` | docker | Use `prod` |
+| `JAVA_OPTS` | optional | JVM flags |
+
+See `.env.example` for a full template.
+
+## Agent docs
+
+See [`.ai/AGENTS.md`](.ai/AGENTS.md) for security, database, and CI specialist notes.
+
+---
+
 # 🚀 Guía Completa: Microservicios en Java con Spring Boot
 
 ## Proyecto de práctica: `microservicio-practica`
@@ -119,8 +207,8 @@ src/main/java/co/com/practica/fact/
 
 | Tecnología | Versión | Para qué sirve |
 |-----------|---------|----------------|
-| Java | 1.8 | Lenguaje base |
-| Spring Boot | 2.7.15 | Framework principal |
+| Java | 17 | Lenguaje base (parity with ms-auth) |
+| Spring Boot | 2.7.18 | Framework principal |
 | Spring Data JPA | incluido | Acceso a BD sin SQL manual |
 | Spring Security | incluido | Autenticación/Autorización |
 | JJWT | 0.11.5 | Manejo de tokens JWT |
@@ -137,9 +225,8 @@ src/main/java/co/com/practica/fact/
 ## 4. Cómo Ejecutar el Proyecto {#como-ejecutar}
 
 ### Prerrequisitos:
-- Java 8 o superior instalado
-- Maven 3.6 o superior instalado
-- IDE: IntelliJ IDEA (recomendado) o Eclipse
+- Java 17 (Scoop: `temurin17-jdk`)
+- Maven Wrapper (`./mvnw`) — no global Maven required
 
 ### Pasos:
 
@@ -147,17 +234,14 @@ src/main/java/co/com/practica/fact/
 # 1. Clonar o descargar el proyecto
 cd microservicio-practica
 
-# 2. Compilar (descarga dependencias automáticamente)
-mvn clean compile
+# 2. Compilar y verificar (tests + JaCoCo ≥ 70%)
+./mvnw -B verify
 
 # 3. Ejecutar en modo desarrollo (perfil DEV)
-mvn spring-boot:run
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 
-# O ejecutar con perfil específico:
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
-
-# 4. Compilar como WAR para despliegue:
-mvn clean package -P prod
+# 4. Compilar WAR:
+./mvnw -B package -DskipTests
 ```
 
 ### URLs disponibles al iniciar:

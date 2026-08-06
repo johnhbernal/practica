@@ -63,6 +63,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         List<String> permitAll = new ArrayList<String>(Arrays.asList(
+                "/actuator/health",
+                "/actuator/health/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/v3/api-docs/**",
