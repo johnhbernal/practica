@@ -46,7 +46,9 @@ $RECYCLE.BIN/
 .superpowers/
 
 # VS Code
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 *.code-workspace
 
 # Editor / temp / backup

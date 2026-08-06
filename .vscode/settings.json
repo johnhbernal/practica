@@ -1,0 +1,26 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.jdt.ls.java.home": "${env:USERPROFILE}\\scoop\\apps\\temurin17-jdk\\current",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-17",
+      "path": "${env:USERPROFILE}\\scoop\\apps\\temurin17-jdk\\current",
+      "default": true
+    }
+  ],
+  "java.import.maven.enabled": true,
+  "files.exclude": {
+    "**/target": true
+  },
+  "cSpell.words": [
+    "practica",
+    "Parametro",
+    "Parametros",
+    "bucket4j",
+    "jjwt",
+    "springdoc",
+    "OWASP",
+    "Temurin",
+    "MapStruct"
+  ]
+}
