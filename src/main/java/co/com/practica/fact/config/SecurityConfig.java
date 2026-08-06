@@ -106,6 +106,12 @@ public class SecurityConfig {
                         res.getWriter().write(
                             "{\"code\":\"401\",\"description\":\"" + Constantes.MSG_UNAUTHORIZED + "\"}");
                     })
+                    .accessDeniedHandler((req, res, ex) -> {
+                        res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        res.getWriter().write(
+                            "{\"code\":\"403\",\"description\":\"" + Constantes.MSG_FORBIDDEN + "\"}");
+                    })
                 .and()
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

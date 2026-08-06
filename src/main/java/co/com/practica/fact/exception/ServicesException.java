@@ -1,10 +1,12 @@
 package co.com.practica.fact.exception;
 
+import co.com.practica.fact.constantes.Constantes;
 import co.com.practica.fact.dto.ResponseDTO;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -123,6 +125,19 @@ public class ServicesException extends ResponseEntityExceptionHandler {
                 ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * Method security ({@code @PreAuthorize}) denial → HTTP 403.
+     * Without this, AccessDeniedException falls into the generic 500 handler.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ResponseDTO> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+        ResponseDTO response = new ResponseDTO(
+                String.valueOf(HttpStatus.FORBIDDEN.value()),
+                Constantes.MSG_FORBIDDEN);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     /**

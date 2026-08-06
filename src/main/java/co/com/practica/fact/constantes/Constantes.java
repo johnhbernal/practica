@@ -27,6 +27,9 @@ public class Constantes {
     /** Mensaje cuando el token es inválido */
     public static final String MSG_UNAUTHORIZED = "Token inválido o expirado";
 
+    /** AuthZ denied (authenticated but lacking role/authority) */
+    public static final String MSG_FORBIDDEN = "No tiene permisos para esta operación";
+
     /** Mensaje cuando no se encuentran recursos */
     public static final String MSG_NOT_FOUND = "Recurso no encontrado";
 

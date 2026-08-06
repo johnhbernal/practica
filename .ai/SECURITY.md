@@ -9,9 +9,11 @@
 - Use `@PreAuthorize("hasRole('ADMIN')")` (not raw `hasAuthority('ADMIN')`).
 - If claim `tokenType` is present, accept `SESSION` or `MASTER`; missing claim = accept (compat).
 - MASTER tokens are for ms-auth Feign (`createParameter`); SPA uses SESSION.
+- Extra ms-auth claims (`roles[]`, `permissions[]`, `groups[]`) are **ignored** — JJWT accepts them; this service does **not** map them to `PERM_*` authorities. Module AuthZ demo lives in ms-auth (`/api/demo/inventario`).
 
 ## HTTP security
 
 - Stateless session; JWT filter before `UsernamePasswordAuthenticationFilter`.
 - `/parametros/**` authenticated; Swagger/docs permitAll; others denyAll.
+- 401 entry point (no/invalid JWT) · 403 accessDeniedHandler + `@ExceptionHandler(AccessDeniedException)` for `@PreAuthorize` denials (must not surface as 500).
 - H2 console permitAll + `frameOptions().sameOrigin()` only when `spring.h2.console.enabled=true` (dev).

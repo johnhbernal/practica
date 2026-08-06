@@ -2,4 +2,6 @@
 
 **Out of scope** for this service.
 
-Identity and directory integration belong to **ms-auth**. practica only validates the session JWT that ms-auth issues after login (local DB users today; AD would be behind ms-auth if added later).
+Identity, simulated AD (groups → roles → permissions), and module RBAC belong to **ms-auth**. See `../ms-auth/.ai/ACTIVE-DIRECTORY.md`.
+
+practica only validates the session/master JWT that ms-auth issues and enforces `@PreAuthorize("hasRole('ADMIN')")` on write/list-all parameter endpoints.

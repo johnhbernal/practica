@@ -24,8 +24,11 @@ Production-oriented parameters microservice for the Practica system (JWT validat
 | `dev` | H2 mem | `update` | off | Swagger + H2 console; seed data; JWT secrets in properties |
 | `test` | H2 mem | `create-drop` | off | JWT test secrets; used by tests (`src/test/resources`) |
 | `prod` | Postgres via env | `validate` | **on** | Swagger/H2 off; JWT + DB from env |
+| `stack` | (with `prod`) | — | — | Seed for full-stack Docker (`practica-stack` uses `prod,stack`) |
 
 Do **not** set `spring.profiles.active=dev` in base `application.properties`. Activate explicitly.
+
+**AuthZ note:** this service trusts ms-auth JWT signature + primary `role`. Fine-grained `permissions[]` are not enforced here (see `.ai/SECURITY.md`).
 
 ## Quick start (local)
 
