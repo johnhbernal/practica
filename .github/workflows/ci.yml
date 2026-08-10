@@ -24,7 +24,9 @@ jobs:
           distribution: temurin
 
       - name: Compile and package
-        run: ./mvnw -B package -DskipTests
+        run: |
+          chmod +x mvnw
+          ./mvnw -B package -DskipTests
 
       - name: Upload WAR artifact
         uses: actions/upload-artifact@v4
@@ -47,7 +49,9 @@ jobs:
           distribution: temurin
 
       - name: Run tests with coverage gate
-        run: ./mvnw -B verify
+        run: |
+          chmod +x mvnw
+          ./mvnw -B verify
 
   docker-build:
     name: Docker Build
