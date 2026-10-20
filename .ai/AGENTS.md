@@ -23,3 +23,7 @@
 3. Keep Maven compiler annotation processors (Lombok then MapStruct) in root `<build>`.
 4. Port **8082**, context `/api`.
 5. Do **not** claim this service enforces module permissions — that demo is ms-auth inventario.
+
+## Piso transversal
+
+Skill personal `redtic-software-practices` ([Red-TIC UNAM](https://www.red-tic.unam.mx/desarrollo-de-software)) — req → diseño → construcción → QA → release → config. No sustituye las fichas de este repo.
